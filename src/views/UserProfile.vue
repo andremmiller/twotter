@@ -2,32 +2,12 @@
   <div class="user-profile">
     <div class="user-profile__user-panel">
       <h1 class="user-profile__username">@{{ user.username }}</h1>
+      <h2>id: {{ userId }}</h2>
       <div class="user-profile__admin-badge" v-if="user.isAdmin">Admin</div>
       <div class="user-profile__follower-count">
         <strong>Followers: </strong> {{ followers }}
       </div>
-      <form class="user-profile__create-twoot" @submit.prevent="createNewTwoot">
-        <label for="newTwoot"><strong>New Twoot</strong></label>
-        <textarea id="newTwoot" rows="4" v-model="newTwootContent"></textarea>
-
-        <div class="user-profile__create-twoot-type">
-          <label for="newTwootType">Type: </label>
-          <select id="newTwootType" v-model="selectedTwootType">
-            <option
-              :value="option.value"
-              v-for="(option, index) in twootTypes"
-              :key="index"
-            >
-              {{ option.name }}
-            </option>
-          </select>
-        </div>
-
-        <button>
-            Twoot!
-        </button>
-
-      </form>
+      <CreateTwootPanel @add-twoot="addTwoot" />
     </div>
     <div class="user-profile__twoots-wrapper">
       <TwootItem
@@ -42,33 +22,26 @@
 </template>
 
 <script>
-import TwootItem from "./TwootItem";
+import TwootItem from "../components/TwootItem"
+import CreateTwootPanel from "../components/CreateTwootPanel"
+import users from '../assets/users'
+// To access the router or the route inside the setup function, call the useRouter or useRoute functions. We will learn more about this in the Composition API
+// https://next.router.vuejs.org/guide/#javascript
+// import { useRoute } from 'vue-router'
+// ex: 
+// const route = useRoute()
+// const userId = route.params.userId
 
 export default {
   name: "UserProfile",
-  components: { TwootItem },
+  components: { CreateTwootPanel, TwootItem },
   data() {
     return {
-      newTwootContent: "",
-      selectedTwootType: "instant",
-      twootTypes: [
-        { value: "draft", name: "Draft" },
-        { value: "instant", name: "Instant Twoot" },
-      ],
       followers: 0,
-      user: {
-        id: 1,
-        username: "ammiller",
-        firstName: "André",
-        lastName: "Miller",
-        email: "andremmiller@live.com",
-        isAdmin: true,
-        twoots: [
-          { id: 1, content: "Twooter is amazing!" },
-          { id: 2, content: "Do not forget to subscribe" },
-          { id: 3, content: "Click the button!" },
-        ],
-      },
+      user: {}
+      //user: users[userId.value - 1] || users[0] 
+      // impossivel referenciar userId (computed) dentro de data. dá pra acessar userId usando o mounted
+      // é possível usando Composition API, dentro de reactive({}),com a sintaxe acima
     };
   },
   watch: {
@@ -83,6 +56,9 @@ export default {
     fullName() {
       return `${this.user.firstName} ${this.user.lastName}`;
     },
+    userId() {
+      return this.$route.params.userId
+    }
   },
   methods: {
     followUser() {
@@ -91,19 +67,14 @@ export default {
     toggleFavourite(id) {
       console.log(`Favourited twoot: ${id}`);
     },
-    createNewTwoot() {
-        if (this.newTwootContent && this.selectedTwootType !== 'draft') {
-            this.user.twoots.unshift({ 
-                id: this.user.twoots.length + 1,
-                content: this.newTwootContent
-            })
-
-            this.newTwootContent = ''
-        }
+    addTwoot(twoot) {
+      this.user.twoots.unshift({ id: this.user.twoots.length + 1, content: twoot })
     }
   },
   mounted() {
-    this.followUser();
+    this.followUser()
+    console.log(users)
+    this.user = users[this.userId - 1] || users[0] 
   },
 };
 </script>

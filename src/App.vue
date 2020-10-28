@@ -1,26 +1,68 @@
 <template>
   <div id="app">
-   <UserProfile />
+    <nav>
+      <router-link to="/">
+        <div class="navigation__logo">
+          Twotter
+        </div>
+      </router-link>
+      <div class="navigation__user" v-if="user">
+        <!-- Accessing the user from global store -->
+        {{ user.username }}
+      </div>
+    </nav>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import UserProfile from './components/UserProfile'
-
+import { useStore } from 'vuex'
+import { computed } from 'vue'
 export default {
   name: 'App',
-  components: {
-    UserProfile
+  setup() {
+    // more Composition API approach
+    // old version approach in router/index.js
+    const store = useStore()
+    //const user = computed(() => store.state.user) // without modules
+    const user = computed(() => store.state.User.user) // with modules
+
+    return { user }
   }
 }
 </script>
 
-<style>
+<style lang="scss">
+body {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color:  inherit;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale; 
+  -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-
+  min-height: 100vh;
+  background-color: #F3F5FA;
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 5%;
+    background-color: deeppink;
+    color: white;
+    .navigation__logo {
+      font-weight: bold;
+      font-size: 24px;
+    }
+    .navigation__user {
+      font-weight: bold;
+    }
+  }
 }
 </style>
